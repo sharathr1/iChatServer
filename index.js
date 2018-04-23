@@ -8,7 +8,6 @@ var bodyParser = require("body-parser")
 var Map = require("collections/map");
 
 var fs = require('fs');
-var Storage = require('./storage');
 var ChatService = require('./chat-service');
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());

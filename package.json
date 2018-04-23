@@ -4,7 +4,7 @@
   "description": "A chat application in Node JS, which uses MongoDB, Mongoose and Socket.io",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [
     "Node",
@@ -13,7 +13,7 @@
     "Mongoose",
     "Socket.io"
   ],
-  "author": "Sibeesh Venu",
+  "author": "SR",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
