@@ -1,0 +1,30 @@
+{
+  "name": "chatapp",
+  "version": "1.0.0",
+  "description": "A chat application in Node JS, which uses MongoDB, Mongoose and Socket.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Node",
+    "JS",
+    "MongoDB",
+    "Mongoose",
+    "Socket.io"
+  ],
+  "author": "Sibeesh Venu",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "collections": "^5.1.2",
+    "crypto": "^1.0.1",
+    "ejs": "^2.5.8",
+    "express": "^4.16.3",
+    "express-fileupload": "^0.4.0",
+    "mongoose": "^4.13.6",
+    "multer": "^1.3.0",
+    "socket.io": "^2.0.4",
+    "socket.io-file": "^2.0.2"
+  }
+}

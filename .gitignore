@@ -1,0 +1,5 @@
+# ignore all logs
+*.log
+others/
+node_modules/
+.vscode/
