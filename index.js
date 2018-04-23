@@ -1,6 +1,7 @@
 var express = require("express")
 var app = express()
 var Set = require("collections/set");
+var path = require('path');
 
 var http = require("http").Server(app)
 var io = require("socket.io")(http)
@@ -37,12 +38,13 @@ mongoose.connect(localdb, {
     console.log("Database connection ... err>>", err)
 })
 */
+//app.use(express.static(__dirname))
 app.use(express.static(__dirname))
+app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: false
 }))
-
 var allClients = [];
 var userlist = [];
 var userSet = new Set();
@@ -141,8 +143,10 @@ var server = http.listen(9090, () => {
 
 app.get('/', function (req, res) {
     console.log("Opening Webapp")
-    res.render('chat.html');
+    res.render('index.html');
 });
+
+
 app.post("/key", async (req, res) => {
     try {
         // console.error(req.body)
