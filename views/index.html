@@ -92,8 +92,8 @@
 <script src="/sketch.js"></script>
 
 <script>
-    var url = "http://3.209.196.136:9090/";
-
+    //  var url = "http://3.209.196.136:9090/";
+    var url = "https://agile-wildwood-25315.herokuapp.com/"
     var socket = io.connect(url);
     socket.on("chat", addChat);
     setTimeout(sessionLoad, 1000);
