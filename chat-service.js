@@ -1,6 +1,6 @@
 module.exports = {
     uploadFile: (inputfile, callback) => {
-        console.log("Uploading File ")
+        console.log("Uploading File ... ")
         let filepath = __dirname + '/' + Date.now() + '-' + inputfile.name;
         inputfile.mv(filepath, function (err) {
             if (err)
