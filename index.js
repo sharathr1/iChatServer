@@ -137,10 +137,11 @@ io.on("connection", (socket) => {
     });
     onDrawing(socket);
 });
-var server = http.listen(9090, () => {
+const PORT = process.env.PORT || 5000
+/*var server = http.listen(9090, () => {
     console.log("Well done, now I am listening on ", server.address().port)
-})
-
+})*/
+var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 app.get('/', function (req, res) {
     console.log("Opening Webapp")
     res.render('index.html');
