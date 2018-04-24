@@ -191,6 +191,7 @@ app.post("/chats", async (req, res) => {
 app.post("/push", async (req, res) => {
     try {
         console.log("push .. ", req.body)
+
         var sendNotification = function (data) {
             var headers = {
                 "Content-Type": "application/json; charset=utf-8",
@@ -227,6 +228,20 @@ app.post("/push", async (req, res) => {
             contents: {
                 "en": "English Message"
             },
+            /* filters: [{
+                     "field": "tag",
+                     "key": "level",
+                     "relation": "=",
+                     "value": "10"
+                 },
+                 {
+                     "operator": "OR"
+                 }, {
+                     "field": "amount_spent",
+                     "relation": ">",
+                     "value": "0"
+                 }
+             ],*/
             included_segments: ["Active Users"]
         };
 

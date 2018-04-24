@@ -20,8 +20,20 @@
                 //   Either the user subscribed for the first time
                 //   Or the user was subscribed -> unsubscribed -> subscribed
                 OneSignal.getUserId(function (userId) {
-                    // Make a POST call to your server with the user ID
-                    console.log("Got UUID for OneSignal ", userId)
+                    // Make a POST call to your server wi   th the user ID
+                    console.log("Got UUID for OneSignal ", userId);
+                    // OneSignal.sendTag("UUID", userId);
+                    OneSignal.sendTags({
+                        UUID: userId
+                    });
+
+                    /*
+                     OneSignal.deleteTags(["key1", "key2"]);
+                         OneSignal.deleteTags(["key1", "key2"], function(tagsDeleted) {
+                         // Callback called when tags have been deleted    
+                        });
+                    */
+
                 });
             }
         });
@@ -115,8 +127,8 @@
 
 <script>
     //  var url = "http://3.209.196.136:9090/";
-    var url = "https://i-chat-u.herokuapp.com/"
-    //var url = "http://localhost:9090/";
+    //var url = "https://i-chat-u.herokuapp.com/"
+    var url = "http://localhost:9090/";
 
     var socket = io.connect(url);
     socket.on("chat", addChat);
