@@ -7,7 +7,6 @@ var http = require("http").Server(app)
 var io = require("socket.io")(http)
 var bodyParser = require("body-parser")
 var Map = require("collections/map");
-
 var fs = require('fs');
 var ChatService = require('./chat-service');
 const fileUpload = require('express-fileupload');
@@ -137,7 +136,7 @@ io.on("connection", (socket) => {
     });
     onDrawing(socket);
 });
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 9090
 /*var server = http.listen(9090, () => {
     console.log("Well done, now I am listening on ", server.address().port)
 })*/
@@ -201,16 +200,26 @@ app.post("/register", async (req, res) => {
     }
 })
 app.post('/upload', function (req, res) {
-    if (!req.files) {
+    console.log("Req ", req)
+
+    if (!req.file) {
         return res.status(400).send('No files were uploaded.');
     }
     try {
-        let reqFile = req.files.file;
+
+        let reqFile = req.file;
         console.log("Calling Uploadfile Function ")
-        Storage.uploadFile(reqFile, function (results) {
-            console.log('results:', results);
-            res.send(results)
-        })
+        console.log("File ", reqFile.filename);
+        io.sockets.in(req.pairID).emit('download', reqFile);
+        req.chat = "File with name " + reqFile.filename + " downloaded";
+        io.sockets.in(req.pairID).emit('newMsg', req);
+        req.chat = "File with name " + reqFile.filename + "sent to " + req.dName;
+        io.sockets.in(req.userID).emit('newMsg', req.chat);
+        /* Storage.uploadFile(reqFile, function (results) {
+             console.log('results:', results);
+             res.send(results)
+         })*/
+
     } catch (error) {
         res.sendStatus(500)
         console.error(error)
