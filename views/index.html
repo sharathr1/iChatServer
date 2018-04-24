@@ -6,7 +6,16 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
 <link rel="stylesheet" href="style.css">
-
+<link rel="manifest" href="/manifest.json" />
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script>
+    var OneSignal = window.OneSignal || [];
+    OneSignal.push(function () {
+        OneSignal.init({
+            appId: "e8921aec-c0df-41cb-bd67-5ce5c066095d",
+        });
+    });
+</script>
 <style>
     .pair-blocks {
         width: 40%;
@@ -93,7 +102,7 @@
 
 <script>
     //  var url = "http://3.209.196.136:9090/";
-    var url = "https://agile-wildwood-25315.herokuapp.com/"
+    var url = "https://i-chat-u.herokuapp.com/"
     var socket = io.connect(url);
     socket.on("chat", addChat);
     setTimeout(sessionLoad, 1000);
