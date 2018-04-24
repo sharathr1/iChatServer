@@ -9,6 +9,8 @@ var bodyParser = require("body-parser")
 var Map = require("collections/map");
 var fs = require('fs');
 var ChatService = require('./chat-service');
+var OneSignal = require('./onesingal-service');
+
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 app.use(express.static(__dirname + '/views'));
@@ -185,6 +187,56 @@ app.post("/chats", async (req, res) => {
         console.error(error)
     }
 })
+
+app.post("/push", async (req, res) => {
+    try {
+        console.log("push .. ", req.body)
+        var sendNotification = function (data) {
+            var headers = {
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": "Basic ZTdmYmJkZTYtOTMwMC00YjY0LTg0NGYtNGE3NTIwYzlkM2Ux"
+            };
+
+            var options = {
+                host: "onesignal.com",
+                port: 443,
+                path: "/api/v1/notifications",
+                method: "POST",
+                headers: headers
+            };
+
+            var https = require('https');
+            var req = https.request(options, function (res) {
+                res.on('data', function (data) {
+                    console.log("Response:");
+                    console.log(JSON.parse(data));
+                });
+            });
+
+            req.on('error', function (e) {
+                console.log("ERROR:");
+                console.log(e);
+            });
+
+            req.write(JSON.stringify(data));
+            req.end();
+        };
+
+        var message = {
+            app_id: "e8921aec-c0df-41cb-bd67-5ce5c066095d",
+            contents: {
+                "en": "English Message"
+            },
+            included_segments: ["Active Users"]
+        };
+
+        sendNotification(message);
+    } catch (error) {
+        res.sendStatus(500)
+        console.error(error)
+    }
+})
+
 app.post("/register", async (req, res) => {
     try {
         console.log("request .. ", req.body)

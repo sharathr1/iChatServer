@@ -14,6 +14,17 @@
         OneSignal.init({
             appId: "e8921aec-c0df-41cb-bd67-5ce5c066095d",
         });
+        OneSignal.on('subscriptionChange', function (isSubscribed) {
+            if (isSubscribed) {
+                // The user is subscribed
+                //   Either the user subscribed for the first time
+                //   Or the user was subscribed -> unsubscribed -> subscribed
+                OneSignal.getUserId(function (userId) {
+                    // Make a POST call to your server with the user ID
+                    console.log("Got UUID for OneSignal ", userId)
+                });
+            }
+        });
     });
 </script>
 <style>
@@ -95,6 +106,8 @@
                 <button id="send" class="btn btn-success">Send</button>
             </div>
         </div>
+        <button id="push" class="btn btn-success">Push Notification</button>
+
     </div>
 </div>
 <script src="/main.js"></script>
@@ -103,6 +116,8 @@
 <script>
     //  var url = "http://3.209.196.136:9090/";
     var url = "https://i-chat-u.herokuapp.com/"
+    //var url = "http://localhost:9090/";
+
     var socket = io.connect(url);
     socket.on("chat", addChat);
     setTimeout(sessionLoad, 1000);
@@ -159,6 +174,20 @@
         }
         postChat(chatMessage);
     })
+    $("#push").click(() => {
+        var chatMessage = {
+            userID: socket.id,
+            dName: dName,
+            email: dEmail,
+            pairID: Userdetail.pairID,
+            chat: $("#txtMessage").val()
+        }
+        pushNotification(chatMessage);
+    })
+
+    function pushNotification(chat) {
+        $.post(url + "push", chat)
+    }
 
     function postChat(chat) {
         $.post(url + "chats", chat)
