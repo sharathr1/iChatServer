@@ -1,8 +1,9 @@
-function UserDetails(userid, name, email, pairID) {
+function UserDetails(userid, name, email, pairID, playerID) {
     this.userID = userid,
         this.dName = name,
         this.email = email,
-        this.pairID = pairID
+        this.pairID = pairID,
+        this.playerID = playerID
 }
 
 function UserDetails() {

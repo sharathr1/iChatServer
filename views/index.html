@@ -13,30 +13,30 @@
     OneSignal.push(function () {
         OneSignal.init({
             appId: "e8921aec-c0df-41cb-bd67-5ce5c066095d",
+            allowLocalhostAsSecureOrigin: true,
         });
         OneSignal.on('subscriptionChange', function (isSubscribed) {
+            console.log("The user's subscription state is now:", isSubscribed);
+        });
+        /*OneSignal.on('subscriptionChange', function (isSubscribed) {
             if (isSubscribed) {
-                // The user is subscribed
-                //   Either the user subscribed for the first time
-                //   Or the user was subscribed -> unsubscribed -> subscribed
                 OneSignal.getUserId(function (userId) {
-                    // Make a POST call to your server wi   th the user ID
                     console.log("Got UUID for OneSignal ", userId);
-                    // OneSignal.sendTag("UUID", userId);
                     OneSignal.sendTags({
                         UUID: userId
                     });
-
-                    /*
-                     OneSignal.deleteTags(["key1", "key2"]);
-                         OneSignal.deleteTags(["key1", "key2"], function(tagsDeleted) {
-                         // Callback called when tags have been deleted    
-                        });
-                    */
-
                 });
             }
         });
+        OneSignal.getUserId(function (userId) {
+            console.log("OneSignal User ID:", userId);
+            // (Output) OneSignal User ID: 270a35cd-4dda-4b3f-b04e-41d7463a2316    
+        });
+
+        OneSignal.getUserId().then(function (userId) {
+            console.log("OneSignal User ID:", userId);
+            // (Output) OneSignal User ID: 270a35cd-4dda-4b3f-b04e-41d7463a2316    
+        });*/
     });
 </script>
 <style>
@@ -128,7 +128,7 @@
 <script>
     //  var url = "http://3.209.196.136:9090/";
     //var url = "https://i-chat-u.herokuapp.com/"
-    var url = "http://localhost:9090/";
+    var url = "http://3.209.196.136:9090/";
 
     var socket = io.connect(url);
     socket.on("chat", addChat);
@@ -141,6 +141,7 @@
     var dName;
     var dEmail;
     var pairID;
+    var playerID;
 
     if (localStorage.getItem('name')) {
         localStorage.setItem('name', 'SR')
@@ -148,11 +149,16 @@
         dName = localStorage.getItem('name')
         dEmail = localStorage.getItem('email')
     }
+    if (localStorage.getItem('palyerID')) {
+        playerID = localStorage.getItem('playerID')
+        Userdetail.playerID = playerID;
+    }
     const Userdetail = {
         userID: socket.id,
         dName: dName,
         dEmail: dEmail,
-        pairID: pairID
+        pairID: pairID,
+        playerID: playerID
     }
 
     $("#pair-button").click(() => {
@@ -170,6 +176,8 @@
             userID: socket.id,
             dName: dName,
             email: dEmail,
+            playerID: playerID,
+
             pairID: Userdetail.pairID,
             chat: $("#txtMessage").val()
         }
@@ -181,6 +189,7 @@
             userID: socket.id,
             dName: dName,
             email: dEmail,
+            playerID: playerID,
             pairID: Userdetail.pairID,
             chat: $("#txtMessage").val()
         }
@@ -192,6 +201,7 @@
             dName: dName,
             email: dEmail,
             pairID: Userdetail.pairID,
+            playerID: playerID,
             chat: $("#txtMessage").val()
         }
         pushNotification(chatMessage);

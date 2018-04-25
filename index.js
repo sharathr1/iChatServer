@@ -10,6 +10,11 @@ var Map = require("collections/map");
 var fs = require('fs');
 var ChatService = require('./chat-service');
 var OneSignal = require('./onesingal-service');
+var https = require('https');
+const httpsProxyAgent = require('https-proxy-agent');
+const agent = new httpsProxyAgent("http://proxy-src.research.ge.com:8080");
+
+
 
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
@@ -65,12 +70,13 @@ function pushMaptoList() {
     }
 }
 
-function pushUsertoList(userID, dName, email, pairID, callback) {
+function pushUsertoList(userID, dName, email, pairID, playerID, callback) {
     var user = new UsersDetails();
     user.userID = userID;
     user.dName = dName;
     user.pairID = pairID;
     user.email = email;
+    user.playerID = playerID;
     if (!userlist.some(e => e.email === email || e.userID === userID)) {
         console.log('adding user to set:', userID);
         userlist.push(user);
@@ -197,16 +203,15 @@ app.post("/push", async (req, res) => {
                 "Content-Type": "application/json; charset=utf-8",
                 "Authorization": "Basic ZTdmYmJkZTYtOTMwMC00YjY0LTg0NGYtNGE3NTIwYzlkM2Ux"
             };
-
             var options = {
                 host: "onesignal.com",
                 port: 443,
                 path: "/api/v1/notifications",
                 method: "POST",
+                agent: agent,
                 headers: headers
             };
 
-            var https = require('https');
             var req = https.request(options, function (res) {
                 res.on('data', function (data) {
                     console.log("Response:");
@@ -222,29 +227,21 @@ app.post("/push", async (req, res) => {
             req.write(JSON.stringify(data));
             req.end();
         };
+        var a = userlist.filter(p => p.userID == req.body.pairID)
+        console.log("Filter :", a[0]);
+        var palyerId = a[0].playerID;
+        console.log("palyerId :", palyerId);
 
+        console.log("palyerId :", palyerId);
         var message = {
             app_id: "e8921aec-c0df-41cb-bd67-5ce5c066095d",
             contents: {
-                "en": "English Message"
+                "en": "Test Message"
             },
-            /* filters: [{
-                     "field": "tag",
-                     "key": "level",
-                     "relation": "=",
-                     "value": "10"
-                 },
-                 {
-                     "operator": "OR"
-                 }, {
-                     "field": "amount_spent",
-                     "relation": ">",
-                     "value": "0"
-                 }
-             ],*/
-            included_segments: ["Active Users"]
+            include_player_ids: [palyerId]
         };
-
+        /*         included_segments   include_player_ids: [req.body.playerID]
+         */
         sendNotification(message);
     } catch (error) {
         res.sendStatus(500)
@@ -256,7 +253,7 @@ app.post("/register", async (req, res) => {
     try {
         console.log("request .. ", req.body)
         var requester = usersList.get(req.body.userID)
-        pushUsertoList(requester.userID, req.body.dName, req.body.email, req.body.pairID, function (results) {
+        pushUsertoList(requester.userID, req.body.dName, req.body.email, req.body.pairID, req.body.playerID, function (results) {
             console.log('results:', results);
             io.emit('userList', userlist);
             res.send(results)
