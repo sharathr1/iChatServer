@@ -2,6 +2,7 @@ var express = require("express")
 var app = express()
 var Set = require("collections/set");
 var path = require('path');
+var os = require('os');
 
 var http = require("http").Server(app)
 var io = require("socket.io")(http)
@@ -148,7 +149,12 @@ const PORT = process.env.PORT || 9090
 /*var server = http.listen(9090, () => {
     console.log("Well done, now I am listening on ", server.address().port)
 })*/
-var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+var server = http.listen(PORT, () => {
+    console.log(`Listening on ${ PORT }`);
+    console.log(os.freemem() / 1024 + " :::" + os.release() + "::" +
+        os.totalmem() / 1024)
+
+})
 app.get('/', function (req, res) {
     console.log("Opening Webapp")
     res.render('index.html');
@@ -264,21 +270,26 @@ app.post("/register", async (req, res) => {
     }
 })
 app.post('/upload', function (req, res) {
-    console.log("Req ", req)
+    //  console.log("Req ", req)
 
-    if (!req.file) {
-        return res.status(400).send('No files were uploaded.');
-    }
+    /* if (!req.file) {
+         return res.status(400).send('No files were uploaded.');
+     }*/
     try {
-
-        let reqFile = req.file;
         console.log("Calling Uploadfile Function ")
-        console.log("File ", reqFile.filename);
-        io.sockets.in(req.pairID).emit('download', reqFile);
-        req.chat = "File with name " + reqFile.filename + " downloaded";
-        io.sockets.in(req.pairID).emit('newMsg', req);
-        req.chat = "File with name " + reqFile.filename + "sent to " + req.dName;
-        io.sockets.in(req.userID).emit('newMsg', req.chat);
+
+        let reqFile = req.body;
+        console.log("File ", req.files.file.name);
+        console.log("BODY ", req.body);
+        // console.log("Req ", req);
+        reqFile.file = req.files.file
+        io.sockets.in(req.body.pairID).emit('download', reqFile);
+        console.log("Download Notification");
+        reqFile.chat = "File with name " + reqFile.filename + " downloaded";
+        io.sockets.in(req.body.pairID).emit('newMsg', reqFile);
+        console.log("Upload confirmation");
+        reqFile.chat = "File with name " + reqFile.filename + " uploaded ";
+        io.sockets.in(req.body.userID).emit('newMsg', reqFile);
         /* Storage.uploadFile(reqFile, function (results) {
              console.log('results:', results);
              res.send(results)

@@ -4,7 +4,8 @@
   "description": "A chat application in Node JS, which uses MongoDB, Mongoose and Socket.io",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "fix-memory-limit": "cross-env LIMIT=3096 increase-memory-limit"
   },
   "keywords": [
     "Node",
@@ -27,6 +28,8 @@
     "multer": "^1.3.0",
     "node-rest-client": "^3.1.0",
     "socket.io": "^2.0.4",
-    "socket.io-file": "^2.0.2"
+    "socket.io-file": "^2.0.2",
+    "increase-memory-limit": "^1.0.3",
+    "cross-env": "^5.0.5"
   }
 }
