@@ -6,14 +6,14 @@ var os = require('os');
 
 var http = require("http").Server(app)
 var io = require("socket.io")(http)
-var bodyParser = require("body-parser")
+//var bodyParser = require("body-parser")
 var Map = require("collections/map");
 var fs = require('fs');
 var ChatService = require('./chat-service');
 var OneSignal = require('./onesingal-service');
 var https = require('https');
 const httpsProxyAgent = require('https-proxy-agent');
-const agent = new httpsProxyAgent("http://proxy-src.research.ge.com:8080");
+//const agent = new httpsProxyAgent("http://proxy-src.research.ge.com:8080");
 
 
 
@@ -32,6 +32,7 @@ app.all('*', function (req, res, next) {
 });
 var UsersDetails = require("./UserDetails");
 
+
 /*var mongoose = require("mongoose")
 mongoose.Promise = Promise
 var Chats = mongoose.model("Chats", {
@@ -48,14 +49,66 @@ mongoose.connect(localdb, {
 //app.use(express.static(__dirname))
 app.use(express.static(__dirname))
 app.set('views', path.join(__dirname, 'views'));
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({
-    extended: false
-}))
+
 var allClients = [];
 var userlist = [];
 var userSet = new Set();
 var usersList = new Map();
+
+const fileUploadE = require('express-fileupload');
+app.use(fileUploadE({
+    limits: {
+        fileSize: 500 * 1024 * 1024
+    },
+}));
+
+app.post('/upload2', function (req, res) {
+    if (!req.files)
+        return res.status(400).send('No files were uploaded.');
+
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let sampleFile = req.files.sampleFile;
+
+    // Use the mv() method to place the file somewhere on your server
+    sampleFile.mv('/somewhere/on/your/server/filename.jpg', function (err) {
+        if (err)
+            return res.status(500).send(err);
+
+        res.send('File uploaded!');
+    });
+});
+
+app.post('/upload', function (req, res) {
+    //  console.log("Req ", req)
+
+    /* if (!req.file) {
+         return res.status(400).send('No files were uploaded.');
+     }*/
+    try {
+        console.log("Calling Uploadfile Function ")
+
+        // let reqFile = req.body;
+        console.log("File ", req.files.file.name);
+        console.log("BODY ", req.body);
+        // console.log("Req ", req);
+        req.body.file = req.files.file
+        io.sockets.in(req.body.pairID).emit('download', req.body);
+        console.log("Download Notification");
+        req.body.chat = "File with name " + req.body.filename + " downloaded";
+        io.sockets.in(req.body.pairID).emit('newMsg', req.body);
+        console.log("Upload confirmation");
+        req.body.chat = "File with name " + req.body.filename + " uploaded ";
+        io.sockets.in(req.body.userID).emit('newMsg', req.body);
+        /* Storage.uploadFile(reqFile, function (results) {
+             console.log('results:', results);
+             res.send(results)
+         })*/
+
+    } catch (error) {
+        res.sendStatus(500)
+        console.error(error)
+    }
+})
 
 function removeUserfromMap() {
     userSet.forEach(function (value) {
@@ -269,37 +322,7 @@ app.post("/register", async (req, res) => {
         console.error(error)
     }
 })
-app.post('/upload', function (req, res) {
-    //  console.log("Req ", req)
 
-    /* if (!req.file) {
-         return res.status(400).send('No files were uploaded.');
-     }*/
-    try {
-        console.log("Calling Uploadfile Function ")
-
-        let reqFile = req.body;
-        console.log("File ", req.files.file.name);
-        console.log("BODY ", req.body);
-        // console.log("Req ", req);
-        reqFile.file = req.files.file
-        io.sockets.in(req.body.pairID).emit('download', reqFile);
-        console.log("Download Notification");
-        reqFile.chat = "File with name " + reqFile.filename + " downloaded";
-        io.sockets.in(req.body.pairID).emit('newMsg', reqFile);
-        console.log("Upload confirmation");
-        reqFile.chat = "File with name " + reqFile.filename + " uploaded ";
-        io.sockets.in(req.body.userID).emit('newMsg', reqFile);
-        /* Storage.uploadFile(reqFile, function (results) {
-             console.log('results:', results);
-             res.send(results)
-         })*/
-
-    } catch (error) {
-        res.sendStatus(500)
-        console.error(error)
-    }
-})
 
 app.post("/pairing", async (req, res) => {
     try {

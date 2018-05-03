@@ -66,3 +66,7 @@ db.<collectionName>.find({"_id": ObjectId("someid")}, {field1: 1, field2: 1});
     uploader.on('abort', (fileInfo) => {
         console.log('Aborted: ', fileInfo);
     });
+
+    https://codeburst.io/how-to-handle-multipart-form-data-in-nodejs-file-uploading-in-nodejs-26c0cb88adcf
+
+     node --max-old-space-size=2200  --trace-gc-verbose .\index.js
