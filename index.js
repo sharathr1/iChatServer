@@ -6,19 +6,38 @@ var os = require('os');
 
 var http = require("http").Server(app)
 var io = require("socket.io")(http)
-//var bodyParser = require("body-parser")
+
 var Map = require("collections/map");
 var fs = require('fs');
 var ChatService = require('./chat-service');
 var OneSignal = require('./onesingal-service');
 var https = require('https');
 const httpsProxyAgent = require('https-proxy-agent');
-//const agent = new httpsProxyAgent("http://proxy-src.research.ge.com:8080");
+var UsersDetails = require("./UserDetails");
+
+const agent = new httpsProxyAgent("http://proxy-src.research.ge.com:8080");
+/*const fileUpload = require('express-fileupload');
+app.use(fileUpload());*/
 
 
+var multer = require('multer')
+var storage = multer.memoryStorage()
 
-const fileUpload = require('express-fileupload');
-app.use(fileUpload());
+/*var multerupload = multer({
+     dest: 'fileprint/'
+})*/
+var multerupload = multer({
+    storage: storage
+})
+
+app.use(express.static(__dirname))
+app.set('views', path.join(__dirname, 'views'));
+/*app.use(express.json())
+ */
+var bodyParser = require('body-parser')
+app.use(bodyParser());
+
+
 app.use(express.static(__dirname + '/views'));
 app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -30,8 +49,12 @@ app.all('*', function (req, res, next) {
         next();
     }
 });
-var UsersDetails = require("./UserDetails");
-
+/*var bodyParser = require("body-parser")
+app.use(bodyParser.urlencoded({
+    extended: true
+}));*/
+/*app.use(bodyParser.json());
+ */
 
 /*var mongoose = require("mongoose")
 mongoose.Promise = Promise
@@ -47,20 +70,19 @@ mongoose.connect(localdb, {
 })
 */
 //app.use(express.static(__dirname))
-app.use(express.static(__dirname))
-app.set('views', path.join(__dirname, 'views'));
+
 
 var allClients = [];
 var userlist = [];
 var userSet = new Set();
 var usersList = new Map();
 
-const fileUploadE = require('express-fileupload');
+/*const fileUploadE = require('express-fileupload');
 app.use(fileUploadE({
     limits: {
         fileSize: 500 * 1024 * 1024
     },
-}));
+}));*/
 
 app.post('/upload2', function (req, res) {
     if (!req.files)
@@ -78,7 +100,7 @@ app.post('/upload2', function (req, res) {
     });
 });
 
-app.post('/upload', function (req, res) {
+app.post('/upload', multerupload.any(), function (req, res) {
     //  console.log("Req ", req)
 
     /* if (!req.file) {
@@ -88,13 +110,21 @@ app.post('/upload', function (req, res) {
         console.log("Calling Uploadfile Function ")
 
         // let reqFile = req.body;
-        console.log("File ", req.files.file.name);
-        console.log("BODY ", req.body);
+        // console.log("req ", req);
+        // console.log("files ", req.files);
+        //  console.log("BODY ", req.body);
+        console.log("filename ", req.body.filename);
+
+        //  console.log("File ", req.file);
         // console.log("Req ", req);
-        req.body.file = req.files.file
+        req.body.file = req.files
+        req.files = {};
+        // console.log("File Content", req.bod);
+
         io.sockets.in(req.body.pairID).emit('download', req.body);
         console.log("Download Notification");
         req.body.chat = "File with name " + req.body.filename + " downloaded";
+        req.body.file = {}
         io.sockets.in(req.body.pairID).emit('newMsg', req.body);
         console.log("Upload confirmation");
         req.body.chat = "File with name " + req.body.filename + " uploaded ";
@@ -103,7 +133,7 @@ app.post('/upload', function (req, res) {
              console.log('results:', results);
              res.send(results)
          })*/
-
+        res.send(req.body);
     } catch (error) {
         res.sendStatus(500)
         console.error(error)
