@@ -31,14 +31,14 @@ var multerupload = multer({
 })
 
 app.use(express.static(__dirname))
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views/www'));
 /*app.use(express.json())
  */
 var bodyParser = require('body-parser')
 app.use(bodyParser());
 
 
-app.use(express.static(__dirname + '/views'));
+app.use(express.static(__dirname + '/views/www'));
 app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
@@ -228,7 +228,7 @@ io.on("connection", (socket) => {
     });
     onDrawing(socket);
 });
-const PORT = process.env.PORT || 9090
+const PORT = process.env.PORT || 3000
 /*var server = http.listen(9090, () => {
     console.log("Well done, now I am listening on ", server.address().port)
 })*/
@@ -240,7 +240,7 @@ var server = http.listen(PORT, () => {
 })
 app.get('/', function (req, res) {
     console.log("Opening Webapp")
-    res.render('index.html');
+    res.render('views/www/index.html');
 });
 
 
