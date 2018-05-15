@@ -25695,6 +25695,23 @@ page-chat .notification {
   color: green;
 }
 
+page-chat .title-container {
+  float: left;
+}
+
+page-chat .username-container {
+  margin-right: 25px;
+  float: right;
+}
+
+page-chat .title-ichat {
+  border-color: #b2b2b2;
+}
+
+page-chat .title-ichat .toolbar-background toolbar-background-md {
+  background-color: rgba(44, 136, 204, 0.34);
+}
+
 single-chat {
   /* Safari */
 }

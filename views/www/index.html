@@ -34,7 +34,29 @@
 
   <link href="build/main.css" rel="stylesheet">
   <link rel="stylesheet" href="build/ng2-emoji.css">
+  <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+  <script>
+    var OneSignal = window.OneSignal || [];
+    OneSignal.push(function () {
+      OneSignal.init({
+        appId: "e8921aec-c0df-41cb-bd67-5ce5c066095d",
+        allowLocalhostAsSecureOrigin: true,
+      });
+      OneSignal.on('subscriptionChange', function (isSubscribed) {
+        console.log("The user's subscription state is now:", isSubscribed);
+      });
+      OneSignal.getUserId(function (userId) {
+        console.log("OneSignal User ID:", userId);
+        // (Output) OneSignal User ID: 270a35cd-4dda-4b3f-b04e-41d7463a2316    
+      });
 
+    });
+  </script>
+  <style>
+    .onesignal-bell-launcher-button {
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
 
 <body>

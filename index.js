@@ -6,6 +6,7 @@ var os = require('os');
 
 var http = require("http").Server(app)
 var io = require("socket.io")(http)
+var http2 = require('http');
 
 var Map = require("collections/map");
 var fs = require('fs');
@@ -36,8 +37,6 @@ app.set('views', path.join(__dirname, 'views/www'));
  */
 var bodyParser = require('body-parser')
 app.use(bodyParser());
-
-
 app.use(express.static(__dirname + '/views/www'));
 app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -49,6 +48,28 @@ app.all('*', function (req, res, next) {
         next();
     }
 });
+const PORT = process.env.PORT || 3000
+var server = http.listen(PORT, () => {
+    console.log(`Listening on ${ PORT }`);
+    console.log(os.freemem() / 1024 + " :::" + os.release() + "::" +
+        os.totalmem() / 1024)
+})
+var blacklist = [];
+
+app.use(function (req, res, next) {
+    if (!blacklist.includes(req.ip))
+        next();
+    else {
+        console.log(" ********* Bloacking IP's ************")
+        res.status(403).end('forbidden');
+    }
+});
+
+function allowed(ip) {
+    console.log("Allowed IP ", ip);
+
+    return true;
+};
 /*var bodyParser = require("body-parser")
 app.use(bodyParser.urlencoded({
     extended: true
@@ -73,6 +94,7 @@ mongoose.connect(localdb, {
 
 
 var allClients = [];
+
 var userlist = [];
 var userSet = new Set();
 var usersList = new Map();
@@ -87,10 +109,8 @@ app.use(fileUploadE({
 app.post('/upload2', function (req, res) {
     if (!req.files)
         return res.status(400).send('No files were uploaded.');
-
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     let sampleFile = req.files.sampleFile;
-
     // Use the mv() method to place the file somewhere on your server
     sampleFile.mv('/somewhere/on/your/server/filename.jpg', function (err) {
         if (err)
@@ -102,7 +122,6 @@ app.post('/upload2', function (req, res) {
 
 app.post('/upload', multerupload.any(), function (req, res) {
     //  console.log("Req ", req)
-
     /* if (!req.file) {
          return res.status(400).send('No files were uploaded.');
      }*/
@@ -114,13 +133,9 @@ app.post('/upload', multerupload.any(), function (req, res) {
         // console.log("files ", req.files);
         //  console.log("BODY ", req.body);
         console.log("filename ", req.body.filename);
-
-        //  console.log("File ", req.file);
-        // console.log("Req ", req);
         req.body.file = req.files
         req.files = {};
         // console.log("File Content", req.bod);
-
         io.sockets.in(req.body.pairID).emit('download', req.body);
         console.log("Download Notification");
         req.body.chat = "File with name " + req.body.filename + " downloaded";
@@ -151,6 +166,12 @@ function pushMaptoList() {
     for (var [key, value] of usersList) {
         console.log(key, " ,", value);
         userlist.push(value);
+    }
+}
+
+function searchUserlistbyEmail(emailID, dName) {
+    if (userlist.some(e => e.email === emailID && e.dName === dName)) {
+
     }
 }
 
@@ -206,7 +227,12 @@ function onDrawing(socket) {
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 }
 io.on("connection", (socket) => {
-    console.log("Socket is connected...", socket.id);
+    let ip = socket.handshake.address.split(':')[3];
+    console.log(socket.id + " Sockets IP", ip);
+    if (blacklist.includes(ip)) {
+        console.log("*******************Blocking IP *******************");
+        socket.disconnect();
+    }
     console.log("Sockets Count...", allClients.length + 1);
     allClients.push(socket);
     addUserObjToMap(socket.id)
@@ -228,16 +254,7 @@ io.on("connection", (socket) => {
     });
     onDrawing(socket);
 });
-const PORT = process.env.PORT || 3000
-/*var server = http.listen(9090, () => {
-    console.log("Well done, now I am listening on ", server.address().port)
-})*/
-var server = http.listen(PORT, () => {
-    console.log(`Listening on ${ PORT }`);
-    console.log(os.freemem() / 1024 + " :::" + os.release() + "::" +
-        os.totalmem() / 1024)
 
-})
 app.get('/', function (req, res) {
     console.log("Opening Webapp")
     res.render('views/www/index.html');
@@ -282,7 +299,22 @@ app.post("/chats", async (req, res) => {
         console.error(error)
     }
 })
-
+app.post("/blacklist", async (req, res) => {
+    try {
+        console.log("send .. ", req.body)
+        if (blacklist.includes(req.body.ip)) {
+            console.log("whitelist .. ", req.body.ip)
+            blacklist.pop(req.body.ip);
+        } else {
+            console.log("blacklist  .. ", req.body.ip)
+            blacklist.push(req.body.ip);
+        }
+        res.send(200);
+    } catch (error) {
+        res.sendStatus(500)
+        console.error(error)
+    }
+})
 app.post("/push", async (req, res) => {
     try {
         console.log("push .. ", req.body)
@@ -347,6 +379,7 @@ app.post("/register", async (req, res) => {
             io.emit('userList', userlist);
             res.send(results)
         })
+
     } catch (error) {
         res.sendStatus(500)
         console.error(error)
